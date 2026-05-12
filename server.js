@@ -18,12 +18,25 @@ const auth = new google.auth.GoogleAuth({
 app.post("/create-event", async (req, res) => {
   try {
     const {
-      title,
-      description,
-      start_time,
-      end_time,
-      timezone,
-    } = req.body;
+  title,
+  description,
+  start_time,
+  end_time,
+  timezone,
+} = req.body;
+
+const parsed =
+  typeof req.body.event_data === "string"
+    ? JSON.parse(req.body.event_data)
+    : req.body.event_data;
+
+const {
+  title,
+  description,
+  start_time,
+  end_time,
+  timezone,
+} = parsed;
 
     const authClient = await auth.getClient();
 
