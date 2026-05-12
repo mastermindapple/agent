@@ -3,7 +3,6 @@ const { google } = require("googleapis");
 
 const app = express();
 
-// MUST be first
 app.use(express.json());
 
 // Google Auth
@@ -18,10 +17,27 @@ app.post("/create-event", async (req, res) => {
   console.log("🔥 RAW BODY:", req.body);
 
   try {
-    // DO NOT overcomplicate parsing
-    const body = req.body;
+    let data = req.body;
 
-    console.log("🔥 BODY AFTER EXPRESS PARSE:", body);
+    // STEP 1: handle nested voice payload
+    if (data.event_data) {
+      let raw = data.event_data;
+
+      // STEP 2: fix invalid JSON (single quotes → double quotes)
+      raw = raw.replace(/'/g, '"');
+
+      try {
+        data = JSON.parse(raw);
+      } catch (err) {
+        console.error("❌ Failed to parse event_data:", raw);
+        return res.status(400).json({
+          success: false,
+          error: "Invalid event_data format",
+        });
+      }
+    }
+
+    console.log("🔥 PARSED DATA:", data);
 
     const {
       title,
@@ -29,7 +45,7 @@ app.post("/create-event", async (req, res) => {
       start_time,
       end_time,
       timezone,
-    } = body || {};
+    } = data;
 
     // validation
     if (!title || !start_time || !end_time) {
@@ -37,6 +53,7 @@ app.post("/create-event", async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Missing required fields",
+        received: data,
       });
     }
 
@@ -60,7 +77,7 @@ app.post("/create-event", async (req, res) => {
       },
     };
 
-    console.log("📅 EVENT TO INSERT:", event);
+    console.log("📅 EVENT TO CREATE:", event);
 
     const response = await calendar.events.insert({
       calendarId: "primary",
@@ -75,7 +92,8 @@ app.post("/create-event", async (req, res) => {
     });
 
   } catch (err) {
-    console.error("🔥 CALENDAR ERROR FULL:", err);
+    console.error("🔥 CALENDAR ERROR:", err);
+
     return res.status(500).json({
       success: false,
       error: err.message,
@@ -83,12 +101,12 @@ app.post("/create-event", async (req, res) => {
   }
 });
 
-// health check
+// Health check
 app.get("/", (req, res) => {
   res.send("Calendar API is running 🚀");
 });
 
-// render port
+// Render port
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
