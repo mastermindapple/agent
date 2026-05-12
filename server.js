@@ -12,10 +12,7 @@ const auth = new google.auth.GoogleAuth({
 });
 
 // Google Auth (safe for deployment)
-const auth = new google.auth.GoogleAuth({
 
-  scopes: ["https://www.googleapis.com/auth/calendar"],
-});
 
 // CREATE EVENT ENDPOINT
 app.post("/create-event", async (req, res) => {
