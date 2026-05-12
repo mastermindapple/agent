@@ -5,9 +5,16 @@ const { google } = require("googleapis");
 const app = express();
 app.use(bodyParser.json());
 
+const { google } = require("googleapis");
+
+const auth = new google.auth.GoogleAuth({
+  credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON),
+  scopes: ["https://www.googleapis.com/auth/calendar"],
+});
+
 // Google Auth (safe for deployment)
 const auth = new google.auth.GoogleAuth({
-  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS || "service-account.json",
+
   scopes: ["https://www.googleapis.com/auth/calendar"],
 });
 
