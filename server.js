@@ -3,7 +3,7 @@ const { google } = require("googleapis");
 
 const app = express();
 
-// Use built-in JSON parser (better than body-parser)
+// MUST be first
 app.use(express.json());
 
 // Google Auth
@@ -12,25 +12,31 @@ const auth = new google.auth.GoogleAuth({
   scopes: ["https://www.googleapis.com/auth/calendar"],
 });
 
-// CREATE EVENT ENDPOINT
+// CREATE EVENT
 app.post("/create-event", async (req, res) => {
-    console.log("🔥 HIT /create-event"); // 
-     console.log(req.body);
-     console.log(res);
+  console.log("🔥 HIT /create-event");
+  console.log("🔥 RAW BODY:", req.body);
+
   try {
+    // DO NOT overcomplicate parsing
+    const body = req.body;
+
+    console.log("🔥 BODY AFTER EXPRESS PARSE:", body);
+
     const {
       title,
       description,
       start_time,
       end_time,
       timezone,
-    } = req.body;
+    } = body || {};
 
-    // basic validation (prevents silent failures)
+    // validation
     if (!title || !start_time || !end_time) {
+      console.log("❌ Missing fields");
       return res.status(400).json({
         success: false,
-        error: "Missing required fields: title, start_time, end_time",
+        error: "Missing required fields",
       });
     }
 
@@ -54,32 +60,35 @@ app.post("/create-event", async (req, res) => {
       },
     };
 
+    console.log("📅 EVENT TO INSERT:", event);
+
     const response = await calendar.events.insert({
-      calendarId: "dhingrajanavllc@gmail.com", // safer than hardcoding email
+      calendarId: "primary",
       resource: event,
     });
 
-    res.json({
+    console.log("✅ EVENT CREATED:", response.data.htmlLink);
+
+    return res.json({
       success: true,
       event_link: response.data.htmlLink,
     });
 
   } catch (err) {
-    console.error("Calendar Error:", err);
-
-    res.status(500).json({
+    console.error("🔥 CALENDAR ERROR FULL:", err);
+    return res.status(500).json({
       success: false,
       error: err.message,
     });
   }
 });
 
-// Health check
+// health check
 app.get("/", (req, res) => {
   res.send("Calendar API is running 🚀");
 });
 
-// Render port
+// render port
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
