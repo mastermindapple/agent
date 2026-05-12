@@ -46,7 +46,7 @@ app.post("/create-event", async (req, res) => {
     };
 
     const response = await calendar.events.insert({
-      calendarId: "primary", // safer than hardcoding email
+      calendarId: "dhingrajanavllc@gmail.com", // safer than hardcoding email
       resource: event,
     });
 
