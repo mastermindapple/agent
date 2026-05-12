@@ -14,6 +14,7 @@ const auth = new google.auth.GoogleAuth({
 
 // CREATE EVENT ENDPOINT
 app.post("/create-event", async (req, res) => {
+    console.log("🔥 HIT /create-event"); // 
   try {
     const {
       title,
