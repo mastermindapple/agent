@@ -80,7 +80,7 @@ app.post("/create-event", async (req, res) => {
     console.log("📅 EVENT TO CREATE:", event);
 
     const response = await calendar.events.insert({
-      calendarId: "primary",
+      calendarId: "dhingrajanavllc@gmail.com",
       resource: event,
     });
 
