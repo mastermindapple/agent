@@ -30,14 +30,6 @@ const parsed =
     ? JSON.parse(req.body.event_data)
     : req.body.event_data;
 
-const {
-  title,
-  description,
-  start_time,
-  end_time,
-  timezone,
-} = parsed;
-
     const authClient = await auth.getClient();
 
     const calendar = google.calendar({
