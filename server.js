@@ -5,7 +5,6 @@ const { google } = require("googleapis");
 const app = express();
 app.use(bodyParser.json());
 
-const { google } = require("googleapis");
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON),
